@@ -1,10 +1,12 @@
 package com.spring.controller;
 
+import com.spring.dto.PersonDto;
 import com.spring.entity.Person;
 import com.spring.services.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +22,20 @@ public class PersonController {
         return personService.count();
     }
     @GetMapping("/persons")
-    public List<Person> finaAll(){
-        return personService.findAll();
+    public List<PersonDto> finaAll(){
+        List<Person> persons= personService.findAll();
+        List<PersonDto> personsDtos= new ArrayList<>();
+        for (int i = 0; i < persons.size(); i++) {
+            PersonDto personDto = new PersonDto();
+            personDto.setName(persons.get(i).getName());
+            personDto.setSalary(persons.get(i).getSalary());
+            personsDtos.add(personDto);
+        }
+        return personsDtos;
     }
+
+
+
     @GetMapping("/person")
     public Optional<Person> findById(@RequestParam Long id){
         return personService.findById(id);
