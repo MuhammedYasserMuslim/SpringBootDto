@@ -5,6 +5,7 @@ import com.spring.dto.PersonDtoName;
 import com.spring.entity.Person;
 import com.spring.services.PersonService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class PersonController {
 
     private final PersonService personService;
+    private final ModelMapper modelMapper;
     @GetMapping("/count")
     public Long count(){
         return personService.count();
@@ -26,9 +28,7 @@ public class PersonController {
         List<Person> persons= personService.findAll();
         List<PersonDto> personsDtos= new ArrayList<>();
         for (Person person : persons) {
-            PersonDto personDto = new PersonDto();
-            personDto.setName(person.getName());
-            personDto.setSalary(person.getSalary());
+            PersonDto personDto =modelMapper.map(person,PersonDto.class);
             personsDtos.add(personDto);
         }
         return personsDtos;
@@ -37,12 +37,11 @@ public class PersonController {
 
 
     @GetMapping("/person")
-    public Optional<PersonDtoName> findById(@RequestParam Long id){
+    public PersonDtoName findById(@RequestParam Long id){
 
-        Person person = new Person();
-        PersonDtoName personDtoName = new PersonDtoName();
-        personDtoName.setName(personService.findById(id).get().getName());
-        return Optional.of(personDtoName);
+        Person person = personService.findById(id).get();
+        PersonDtoName personDtoName = modelMapper.map(person,PersonDtoName.class);
+        return personDtoName;
     }
     @GetMapping("/personn")
     public List<Person> findByAge(@RequestParam Byte age ){
