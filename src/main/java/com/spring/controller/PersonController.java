@@ -1,9 +1,10 @@
 package com.spring.controller;
 
 import com.spring.dto.PersonDto;
+import com.spring.dto.PersonDtoName;
 import com.spring.entity.Person;
 import com.spring.services.PersonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -12,11 +13,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/person")
-
+@RequiredArgsConstructor
 public class PersonController {
 
-    @Autowired
-    PersonService personService;
+    private final PersonService personService;
     @GetMapping("/count")
     public Long count(){
         return personService.count();
@@ -25,10 +25,10 @@ public class PersonController {
     public List<PersonDto> finaAll(){
         List<Person> persons= personService.findAll();
         List<PersonDto> personsDtos= new ArrayList<>();
-        for (int i = 0; i < persons.size(); i++) {
+        for (Person person : persons) {
             PersonDto personDto = new PersonDto();
-            personDto.setName(persons.get(i).getName());
-            personDto.setSalary(persons.get(i).getSalary());
+            personDto.setName(person.getName());
+            personDto.setSalary(person.getSalary());
             personsDtos.add(personDto);
         }
         return personsDtos;
@@ -37,8 +37,12 @@ public class PersonController {
 
 
     @GetMapping("/person")
-    public Optional<Person> findById(@RequestParam Long id){
-        return personService.findById(id);
+    public Optional<PersonDtoName> findById(@RequestParam Long id){
+
+        Person person = new Person();
+        PersonDtoName personDtoName = new PersonDtoName();
+        personDtoName.setName(personService.findById(id).get().getName());
+        return Optional.of(personDtoName);
     }
     @GetMapping("/personn")
     public List<Person> findByAge(@RequestParam Byte age ){
@@ -64,8 +68,8 @@ public class PersonController {
     }
 
     @DeleteMapping("/person")
-    public Person deleteById(Long id){
-        Person person = personService.findById(id).get();
+    public Optional<Person> deleteById(Long id){
+        Optional<Person> person = personService.findById(id);
         personService.deleteById(id);
         return person;
 
